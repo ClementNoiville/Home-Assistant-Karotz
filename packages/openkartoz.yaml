@@ -1,0 +1,272 @@
+input_text:
+  nabaztag_ip_address:
+    name: Nabaztag Ip Address
+    initial: 192.168.1.84
+  nabaztag_color_1:
+    name: Nabaztag Color 1
+    initial: ffff00
+  nabaztag_color_2:
+    name: Nabaztag Color 2
+    initial: 000000
+  nabaztag_color_speed:
+    name: Nabaztag Color Speed
+    initial: 700
+
+input_boolean:
+  nabaztag_awake:
+    initial: on
+    
+input_number:
+  nabaztag_ear_left:
+    name: Nabaztag Ear Left
+    initial: 0
+    min: 0
+    max: 16
+    step: 1
+  nabaztag_ear_right:
+    name: Nabaztag Ear Right
+    initial: 0
+    min: 0
+    max: 16
+    step: 1
+
+group:
+  nabaztag_utils:
+    name: Nabaztag Utils
+    entities:
+      - script.nabaztag_moods
+
+script:
+  nabaztag_moods:
+    alias: Talk!
+    sequence:
+      - service: rest_command.nabaztag_moods
+  nabaztag_wakeup:
+    alias: Wake Up
+    sequence:
+      - service: rest_command.nabaztag_wakeup
+      - service: input_boolean.turn_on
+        data:
+          entity_id: input_boolean.nabaztag_awake
+  nabaztag_sleep:
+    alias: Sleep
+    sequence:
+      - service: rest_command.nabaztag_sleep
+      - service: input_boolean.turn_off
+        data:
+          entity_id: input_boolean.nabaztag_awake
+
+switch:
+  - platform: template
+    switches:
+      nabaztag_life:
+        friendly_name: "Awake"
+        value_template: "{{ is_state('input_boolean.nabaztag_awake', 'on') }}"
+        turn_on:
+          - service: script.turn_on
+            entity_id: script.nabaztag_wakeup
+        turn_off:
+          - service: script.turn_on
+            entity_id: script.nabaztag_sleep
+
+rest_command:
+  nabaztag_moods:
+    url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/apps/moods"
+  nabaztag_wakeup:
+    url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/wakeup?silent=1"
+  nabaztag_sleep:
+    url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/sleep"
+  nabaztag_ears:
+    url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/ears?left={{ states('input_number.nabaztag_ear_left') }}&right={{ states('input_number.nabaztag_ear_right') }}&noreset=1"
+  nabaztag_light:
+    url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/leds?pulse=1&color={{ states('input_text.nabaztag_color_1') }}&speed={{ states('input_text.nabaztag_color_speed') }}&color2={{ states('input_text.nabaztag_color_2') }}"
+
+automation:
+  - alias: Update nabaztag color 1
+    trigger:
+      - platform: state
+        entity_id: input_text.nabaztag_color_1
+    action:
+      - service: rest_command.nabaztag_light
+
+  - alias: Update nabaztag color 2
+    trigger:
+      - platform: state
+        entity_id: input_text.nabaztag_color_2
+    action:
+      - service: rest_command.nabaztag_light
+
+  - alias: Update nabaztag speed
+    trigger:
+      - platform: state
+        entity_id: input_text.nabaztag_speed
+    action:
+      - service: rest_command.nabaztag_light
+
+  - alias: Update nabaztag ear left
+    trigger:
+      - platform: state
+        entity_id: input_number.nabaztag_ear_left
+    action:
+      - service: rest_command.nabaztag_ears
+
+  - alias: Update nabaztag ear right
+    trigger:
+      - platform: state
+        entity_id: input_number.nabaztag_ear_right
+    action:
+      - service: rest_command.nabaztag_ears
+      
+  - alias: Temperature below -10
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_temperature
+      below: -10
+    action:
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_1
+        value: "1a00ff"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_2
+        value: "000000"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_speed
+        value: "700"
+      
+  - alias: Temperature from -10 to 0
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_temperature
+      above: -10
+      below: 0
+    action:
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_1
+        value: "003cff"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_2
+        value: "000000"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_speed
+        value: "700"
+      
+  - alias: Temperature from 0 to 10
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_temperature
+      above: 0
+      below: 10
+    action:
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_1
+        value: "00FF00"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_2
+        value: "000000"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_speed
+        value: "700"
+      
+  - alias: Temperature from 10 to 20
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_temperature
+      above: 10
+      below: 20
+    action:
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_1
+        value: "62ff00"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_2
+        value: "000000"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_speed
+        value: "700"
+      
+  - alias: Temperature from 20 to 30
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_temperature
+      above: 20
+      below: 30
+    action:
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_1
+        value: "ff9100"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_2
+        value: "000000"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_speed
+        value: "700"
+      
+  - alias: Temperature above 30
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_temperature
+      above: 30
+    action:
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_1
+        value: "ff0000"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_color_2
+        value: "000000"
+    - service: input_text.set_value
+      data_template:
+        entity_id: input_text.nabaztag_speed
+        value: "700"
