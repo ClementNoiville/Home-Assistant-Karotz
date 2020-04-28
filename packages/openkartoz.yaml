@@ -1,7 +1,7 @@
 input_text:
   nabaztag_ip_address:
-    name: YOUR_IP
-    initial: 192.168.1.84
+    name: Nabaztag Ip Address
+    initial: YOUR_IP
   nabaztag_color_1:
     name: Nabaztag Color 1
     initial: ffff00
