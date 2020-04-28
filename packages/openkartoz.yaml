@@ -8,9 +8,6 @@ input_text:
   nabaztag_color_2:
     name: Nabaztag Color 2
     initial: 000000
-  nabaztag_color_speed:
-    name: Nabaztag Color Speed
-    initial: 700
 
 input_boolean:
   nabaztag_awake:
@@ -29,6 +26,12 @@ input_number:
     min: 0
     max: 16
     step: 1
+  nabaztag_light_speed:
+    name: Nabaztag Light Speed
+    initial: 700
+    min: 0
+    max: 2000
+    step: 100
 
 group:
   nabaztag_utils:
@@ -45,9 +48,7 @@ script:
     alias: Wake Up
     sequence:
       - service: rest_command.nabaztag_wakeup
-      - service: input_boolean.turn_on
-        data:
-          entity_id: input_boolean.nabaztag_awake
+      - service: rest_command.nabaztag_light
   nabaztag_sleep:
     alias: Sleep
     sequence:
@@ -60,7 +61,7 @@ switch:
   - platform: template
     switches:
       nabaztag_life:
-        friendly_name: "Awake"
+        friendly_name: "Éveillé"
         value_template: "{{ is_state('input_boolean.nabaztag_awake', 'on') }}"
         turn_on:
           - service: script.turn_on
@@ -76,12 +77,38 @@ rest_command:
     url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/wakeup?silent=1"
   nabaztag_sleep:
     url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/sleep"
+  nabaztag_ears_random:
+    url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/ears_random"
   nabaztag_ears:
     url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/ears?left={{ states('input_number.nabaztag_ear_left') }}&right={{ states('input_number.nabaztag_ear_right') }}&noreset=1"
   nabaztag_light:
-    url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/leds?pulse=1&color={{ states('input_text.nabaztag_color_1') }}&speed={{ states('input_text.nabaztag_color_speed') }}&color2={{ states('input_text.nabaztag_color_2') }}"
-
+    url: "http://{{ states('input_text.nabaztag_ip_address') }}/cgi-bin/leds?pulse=1&color={{ states('input_text.nabaztag_color_1') }}&speed={{ states('input_number.nabaztag_light_speed') }}&color2={{ states('input_text.nabaztag_color_2') }}"
+    
+sensor:
+  - platform: rest
+    resource: http://192.168.1.84/cgi-bin/status
+    name: KarotzSleep
+    value_template: '{{ value_json.sleep }}'
+    
 automation:
+  - alias: Karotz on
+    trigger:
+      platform: state
+      entity_id: sensor.KarotzSleep
+      to: '0'
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.nabaztag_awake
+        
+  - alias: Karotz off
+    trigger:
+      platform: state
+      entity_id: sensor.KarotzSleep
+      to: '1'
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.nabaztag_awake
+
   - alias: Update nabaztag color 1
     trigger:
       - platform: state
@@ -96,10 +123,10 @@ automation:
     action:
       - service: rest_command.nabaztag_light
 
-  - alias: Update nabaztag speed
+  - alias: Update nabaztag light speed
     trigger:
       - platform: state
-        entity_id: input_text.nabaztag_speed
+        entity_id: input_number.nabaztag_light_speed
     action:
       - service: rest_command.nabaztag_light
 
@@ -117,7 +144,7 @@ automation:
     action:
       - service: rest_command.nabaztag_ears
       
-  - alias: Temperature below -10
+  - alias: Température sous -10
     description: ''
     trigger:
     - platform: time_pattern
@@ -137,12 +164,8 @@ automation:
       data_template:
         entity_id: input_text.nabaztag_color_2
         value: "000000"
-    - service: input_text.set_value
-      data_template:
-        entity_id: input_text.nabaztag_speed
-        value: "700"
       
-  - alias: Temperature from -10 to 0
+  - alias: Température de -10 à 0
     description: ''
     trigger:
     - platform: time_pattern
@@ -163,12 +186,8 @@ automation:
       data_template:
         entity_id: input_text.nabaztag_color_2
         value: "000000"
-    - service: input_text.set_value
-      data_template:
-        entity_id: input_text.nabaztag_speed
-        value: "700"
       
-  - alias: Temperature from 0 to 10
+  - alias: Température de 0 à 10
     description: ''
     trigger:
     - platform: time_pattern
@@ -189,12 +208,8 @@ automation:
       data_template:
         entity_id: input_text.nabaztag_color_2
         value: "000000"
-    - service: input_text.set_value
-      data_template:
-        entity_id: input_text.nabaztag_speed
-        value: "700"
       
-  - alias: Temperature from 10 to 20
+  - alias: Température de 10 à 20
     description: ''
     trigger:
     - platform: time_pattern
@@ -215,12 +230,8 @@ automation:
       data_template:
         entity_id: input_text.nabaztag_color_2
         value: "000000"
-    - service: input_text.set_value
-      data_template:
-        entity_id: input_text.nabaztag_speed
-        value: "700"
       
-  - alias: Temperature from 20 to 30
+  - alias: Température de 20 à 30
     description: ''
     trigger:
     - platform: time_pattern
@@ -241,12 +252,8 @@ automation:
       data_template:
         entity_id: input_text.nabaztag_color_2
         value: "000000"
-    - service: input_text.set_value
-      data_template:
-        entity_id: input_text.nabaztag_speed
-        value: "700"
       
-  - alias: Temperature above 30
+  - alias: Température supérieure à 30
     description: ''
     trigger:
     - platform: time_pattern
@@ -266,7 +273,293 @@ automation:
       data_template:
         entity_id: input_text.nabaztag_color_2
         value: "000000"
-    - service: input_text.set_value
+      
+  - alias: Risque de pluie < 40%
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/15'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_rain_chance
+      above: 10
+      below: 40
+    action:
+    - service: rest_command.nabaztag_ears_random
+      
+  - alias: Risque de pluie de 40% à 60%
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_rain_chance
+      above: 40
+      below: 60
+    action:
+    - service: input_number.set_value
       data_template:
-        entity_id: input_text.nabaztag_speed
-        value: "700"
+        entity_id: input_number.nabaztag_ear_left
+        value: 15
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_ear_right
+        value: 1
+      
+  - alias: Risque de pluie > 60%
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_rain_chance
+      above: 60
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_ear_left
+        value: 9
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_ear_right
+        value: 13
+      
+  - alias: Vent 0
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      below: 1
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 2000
+      
+  - alias: Vent 1
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 1
+      below: 5
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 1834
+      
+  - alias: Vent 2
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 6
+      below: 11
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 1668
+      
+  - alias: Vent 3
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 12
+      below: 19
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 1502
+      
+  - alias: Vent 4
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 20
+      below: 28
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 1336
+      
+  - alias: Vent 5
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 29
+      below: 38
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 1170
+      
+  - alias: Vent 6
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 39
+      below: 49
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 1004
+      
+  - alias: Vent 7
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 50
+      below: 61
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 838
+      
+  - alias: Vent 8
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 62
+      below: 74
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 672
+      
+  - alias: Vent 9
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 75
+      below: 88
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 506
+      
+  - alias: Vent 10
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 89
+      below: 102
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 340
+      
+  - alias: Vent 11
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 103
+      below: 117
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 174
+      
+  - alias: Vent 12
+    description: ''
+    trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '/5'
+      seconds: '0'
+    condition:
+    - condition: numeric_state
+      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      above: 118
+    action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.nabaztag_light_speed
+        value: 8
