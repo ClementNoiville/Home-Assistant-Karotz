@@ -1,6 +1,6 @@
 input_text:
   nabaztag_ip_address:
-    name: Nabaztag Ip Address
+    name: YOUR_IP
     initial: 192.168.1.84
   nabaztag_color_1:
     name: Nabaztag Color 1
@@ -153,7 +153,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_temperature
+      entity_id: sensor.weather_temperature
       below: -10
     action:
     - service: input_text.set_value
@@ -174,7 +174,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_temperature
+      entity_id: sensor.weather_temperature
       above: -10
       below: 0
     action:
@@ -196,7 +196,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_temperature
+      entity_id: sensor.weather_temperature
       above: 0
       below: 10
     action:
@@ -218,7 +218,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_temperature
+      entity_id: sensor.weather_temperature
       above: 10
       below: 20
     action:
@@ -240,7 +240,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_temperature
+      entity_id: sensor.weather_temperature
       above: 20
       below: 30
     action:
@@ -262,7 +262,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_temperature
+      entity_id: sensor.weather_temperature
       above: 30
     action:
     - service: input_text.set_value
@@ -283,7 +283,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_rain_chance
+      entity_id: sensor.weather_rain_chance
       above: 10
       below: 40
     action:
@@ -298,7 +298,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_rain_chance
+      entity_id: sensor.weather_rain_chance
       above: 40
       below: 60
     action:
@@ -320,7 +320,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_rain_chance
+      entity_id: sensor.weather_rain_chance
       above: 60
     action:
     - service: input_number.set_value
@@ -332,7 +332,7 @@ automation:
         entity_id: input_number.nabaztag_ear_right
         value: 13
       
-  - alias: Vent 0
+  - alias: Wind 0
     description: ''
     trigger:
     - platform: time_pattern
@@ -341,7 +341,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       below: 1
     action:
     - service: input_number.set_value
@@ -349,7 +349,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 2000
       
-  - alias: Vent 1
+  - alias: Wind 1
     description: ''
     trigger:
     - platform: time_pattern
@@ -358,7 +358,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 1
       below: 5
     action:
@@ -367,7 +367,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 1834
       
-  - alias: Vent 2
+  - alias: Wind 2
     description: ''
     trigger:
     - platform: time_pattern
@@ -376,7 +376,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 6
       below: 11
     action:
@@ -385,7 +385,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 1668
       
-  - alias: Vent 3
+  - alias: Wind 3
     description: ''
     trigger:
     - platform: time_pattern
@@ -394,7 +394,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 12
       below: 19
     action:
@@ -403,7 +403,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 1502
       
-  - alias: Vent 4
+  - alias: Wind 4
     description: ''
     trigger:
     - platform: time_pattern
@@ -412,7 +412,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 20
       below: 28
     action:
@@ -421,7 +421,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 1336
       
-  - alias: Vent 5
+  - alias: Wind 5
     description: ''
     trigger:
     - platform: time_pattern
@@ -430,7 +430,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 29
       below: 38
     action:
@@ -439,7 +439,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 1170
       
-  - alias: Vent 6
+  - alias: Wind 6
     description: ''
     trigger:
     - platform: time_pattern
@@ -448,7 +448,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 39
       below: 49
     action:
@@ -457,7 +457,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 1004
       
-  - alias: Vent 7
+  - alias: Wind 7
     description: ''
     trigger:
     - platform: time_pattern
@@ -466,7 +466,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 50
       below: 61
     action:
@@ -475,7 +475,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 838
       
-  - alias: Vent 8
+  - alias: Wind 8
     description: ''
     trigger:
     - platform: time_pattern
@@ -484,7 +484,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 62
       below: 74
     action:
@@ -493,7 +493,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 672
       
-  - alias: Vent 9
+  - alias: Wind 9
     description: ''
     trigger:
     - platform: time_pattern
@@ -502,7 +502,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 75
       below: 88
     action:
@@ -511,7 +511,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 506
       
-  - alias: Vent 10
+  - alias: Wind 10
     description: ''
     trigger:
     - platform: time_pattern
@@ -520,7 +520,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 89
       below: 102
     action:
@@ -529,7 +529,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 340
       
-  - alias: Vent 11
+  - alias: Wind 11
     description: ''
     trigger:
     - platform: time_pattern
@@ -538,7 +538,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 103
       below: 117
     action:
@@ -547,7 +547,7 @@ automation:
         entity_id: input_number.nabaztag_light_speed
         value: 174
       
-  - alias: Vent 12
+  - alias: Wind 12
     description: ''
     trigger:
     - platform: time_pattern
@@ -556,7 +556,7 @@ automation:
       seconds: '0'
     condition:
     - condition: numeric_state
-      entity_id: sensor.paris_13e_arrondissement_wind_speed
+      entity_id: sensor.weather_wind_speed
       above: 118
     action:
     - service: input_number.set_value
